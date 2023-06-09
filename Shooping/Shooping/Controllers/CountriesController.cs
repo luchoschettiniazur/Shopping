@@ -56,15 +56,36 @@ namespace Shooping.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Name")] Country country)
+        //public async Task<IActionResult> Create([Bind("Id,Name")] Country country)
+        public async Task<IActionResult> Create(Country country)
         {
             if (ModelState.IsValid)
             {
-                _context.Add(country);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                try
+                {
+                    _context.Add(country);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    string messageError = dbUpdateException.InnerException!.Message;
+                    if (messageError.Contains("duplicate") || messageError.Contains("duplicada"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya existe un país con el mismo nombre.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
             }
             return View(country);
+
         }
 
         // GET: Countries/Edit/5
@@ -88,7 +109,8 @@ namespace Shooping.Controllers
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Country country)
+        //public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Country country)
+        public async Task<IActionResult> Edit(int id, Country country)
         {
             if (id != country.Id)
             {
@@ -101,19 +123,29 @@ namespace Shooping.Controllers
                 {
                     _context.Update(country);
                     await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Index));
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!CountryExists(country.Id))
+                    ModelState.AddModelError(string.Empty, "No se ha podido modificar el registro.");
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    string messageError = dbUpdateException.InnerException!.Message;
+                    if (messageError.Contains("duplicate") || messageError.Contains("duplicada"))
                     {
-                        return NotFound();
+                        ModelState.AddModelError(string.Empty, "Ya existe un país con el mismo nombre.");
                     }
                     else
                     {
-                        throw;
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
                     }
                 }
-                return RedirectToAction(nameof(Index));
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+
             }
             return View(country);
         }
@@ -126,8 +158,7 @@ namespace Shooping.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries
-                .FirstOrDefaultAsync(m => m.Id == id);
+            var country = await _context.Countries.FindAsync(id);
             if (country == null)
             {
                 return NotFound();
@@ -155,9 +186,9 @@ namespace Shooping.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        private bool CountryExists(int id)
-        {
-          return (_context.Countries?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
+        //private bool CountryExists(int id)
+        //{
+        //  return (_context.Countries?.Any(e => e.Id == id)).GetValueOrDefault();
+        //}
     }
 }

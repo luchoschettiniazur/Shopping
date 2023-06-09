@@ -1,0 +1,15 @@
+
+
+Crear		class="btn btn-outline-primary"		Azul
+
+Editar		class="btn btn-outline-warning"		Amarillo		
+
+Regresar	class="btn btn-outline-success"		Verde	
+
+Detalle		class="btn btn-outline-info"		Celeste
+
+Borrar		class="btn btn-outline-danger"		Rojo
+
+
+
+xxx no lo usa aquixxx		class="btn btn-outline-secondary"		gris
