@@ -9,12 +9,16 @@
 <h4>País</h4>
 <hr />
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-12">
         <form asp-action="Create">
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <partial name="_UpdateEdit" />
+            @*
+            Puse la lista de Country como nulleable en en la clase de Country y con eso no hace falta esto.
+            <input type="hidden" asp-for="States" />*@
+
+            <partial name="_CreateEdit" />
 
             <div class="form-group mt-2">
                 <input type="submit" value="Crear" class="btn btn-outline-primary" />

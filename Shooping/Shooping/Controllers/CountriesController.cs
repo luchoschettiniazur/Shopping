@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data;
 using Shooping.Data.Entities;
+using Shooping.Models;
 
 namespace Shooping.Controllers
 {
@@ -23,7 +24,7 @@ namespace Shooping.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.Countries != null ? 
-                          View(await _context.Countries.ToListAsync()) :
+                          View(await _context.Countries.Include(c => c.States).ToListAsync()) :
                           Problem("Entity set 'DataContext.Countries'  is null.");
         }
 
@@ -35,7 +36,7 @@ namespace Shooping.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries
+            var country = await _context.Countries.Include(c => c.States)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (country == null)
             {
@@ -48,6 +49,10 @@ namespace Shooping.Controllers
         // GET: Countries/Create
         public IActionResult Create()
         {
+            ////Puse la lista de Country como nulleable en en la clase de Country y con eso no hace falta esto.
+            //Country country = new() { States = new List<State>() };
+            //return View(country);
+
             return View();
         }
 
@@ -85,8 +90,79 @@ namespace Shooping.Controllers
                 }
             }
             return View(country);
-
         }
+
+
+
+
+
+        public async Task<IActionResult> AddState(int? id )
+        {
+            if (id is null)
+            {
+                return NotFound();
+            }
+
+            Country? country = await _context.Countries.FindAsync(id);
+            if (country is null)
+            {
+                return NotFound();
+            }
+
+            StateViewModel model = new()
+            {
+                CountryId = country.Id
+            };
+
+            return View(model);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Id,Name")] Country country)
+        public async Task<IActionResult> AddState(StateViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    State state = new()
+                    {
+                        Cities = new List<City>(),
+                        //Country = await _context.Countries.FindAsync(model.CountryId),
+                        CountryId = model.CountryId,
+                        Name = model.Name
+                    };
+
+
+                    _context.Add(state);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details), new {id = model.CountryId});
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    string messageError = dbUpdateException.InnerException!.Message;
+                    if (messageError.Contains("duplicate") || messageError.Contains("duplicada"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya existe un departamento/estado con el mismo nombre en este país.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+            }
+            return View(model);
+        }
+
+
+
+
 
         // GET: Countries/Edit/5
         public async Task<IActionResult> Edit(int? id)
@@ -150,6 +226,86 @@ namespace Shooping.Controllers
             return View(country);
         }
 
+
+
+        public async Task<IActionResult> EditState(int? id)
+        {
+            if (id == null || _context.Countries == null)
+            {
+                return NotFound();
+            }
+
+            //var state = await _context.States.Include(p => p.Country).FirstOrDefaultAsync(s => s.Id == id);
+            var state = await _context.States.FindAsync(id);
+
+            if (state == null)
+            {
+                return NotFound();
+            }
+
+            StateViewModel model = new()
+            {
+                //CountryId = state.Country.Id, //si hacemos el Include
+                CountryId = state.CountryId,
+                Id = state.Id,
+                Name = state.Name
+            };
+
+
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Country country)
+        public async Task<IActionResult> EditState(int id, StateViewModel model)
+        {
+            if (id != model.Id)
+            {
+                return NotFound();
+            }
+
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    State state = new()
+                    {
+                        Id = model.Id,
+                        Name= model.Name,
+                        CountryId = model.CountryId,
+                    };
+
+                    _context.Update(state);
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(Details), new { Id = model.CountryId});
+                }
+                catch (DbUpdateConcurrencyException)
+                {
+                    ModelState.AddModelError(string.Empty, "No se ha podido modificar el registro.");
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    string messageError = dbUpdateException.InnerException!.Message;
+                    if (messageError.Contains("duplicate") || messageError.Contains("duplicada"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya existe un departamento/estado con el mismo nombre en este país.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+
+            }
+            return View(model);
+        }
+
+
         // GET: Countries/Delete/5
         public async Task<IActionResult> Delete(int? id)
         {
@@ -158,7 +314,7 @@ namespace Shooping.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries.FindAsync(id);
+            var country = await _context.Countries.Include(c => c.States).FirstOrDefaultAsync(c=> c.Id == id);
             if (country == null)
             {
                 return NotFound();

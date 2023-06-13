@@ -14,6 +14,11 @@ public class Country
     public string Name { get; set; } = null!;
 
 
+    public ICollection<State>? States { get; set; }
+
+    //las propiedades de solo lectura no se mapean en BBDD
+    [Display(Name = "Departamentos/Estados")]
+    public int StatesNumber => States == null ? 0 : States.Count();
 
 
 }
