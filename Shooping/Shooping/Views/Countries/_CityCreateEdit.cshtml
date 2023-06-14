@@ -1,0 +1,8 @@
+﻿@*@model Shooping.Data.Entities.City*@
+@model Shooping.Models.CityVm
+
+<div class="form-group">
+    <label asp-for="city.Name" class="control-label"></label>
+    <input asp-for="city.Name" class="form-control" />
+    <span asp-validation-for="city.Name" class="text-danger"></span>
+</div>

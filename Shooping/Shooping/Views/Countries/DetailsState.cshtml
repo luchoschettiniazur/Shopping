@@ -1,4 +1,4 @@
-﻿@model Shooping.Data.Entities.State
+﻿@model Shooping.Models.StateVm
 
 @{
     ViewData["Title"] = "Details";
@@ -12,9 +12,9 @@
 <partial name="_StateDetailsDelete" />
 
 <div>
-    <a asp-action="AddCity" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Agregar Ciudad</a>
-    <a asp-action="EditState" asp-route-id="@Model?.Id" class="btn btn-outline-warning">Editar Departemento/Estado</a>
-    <a asp-action="Detais" asp-route-id="@Model?.Id" class="btn btn-outline-success">Regresar</a>
+    <a asp-action="CreateCity" asp-route-id="@Model.state.Id" class="btn btn-outline-primary">Agregar Ciudad</a>
+    <a asp-action="EditState" asp-route-id="@Model.state.Id" class="btn btn-outline-warning">Editar Departemento/Estado</a>
+    <a asp-action="Details" asp-route-id="@Model.state.CountryId" class="btn btn-outline-success">Regresar</a>
 </div>
 <hr />
 
@@ -32,13 +32,13 @@
                     <thead>
                         <tr>
                             <th>
-                                @Html.DisplayNameFor(model => model.Cities!.FirstOrDefault()!.Name)
+                                @Html.DisplayNameFor(model => model.state.Cities!.FirstOrDefault()!.Name)
                             </th>
                             <th></th>
                         </tr>
                     </thead>
                     <tbody>
-                        @foreach (var item in Model!.Cities!)
+                        @foreach (var item in Model.state.Cities!)
                         {
                             <tr>
                                 <td>

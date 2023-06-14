@@ -24,8 +24,8 @@ namespace Shooping.Controllers
         public async Task<IActionResult> Index()
         {
               return _context.Countries != null ? 
-                          View(await _context.Countries.Include(c => c.States).ToListAsync()) :
-                          Problem("Entity set 'DataContext.Countries'  is null.");
+                     View( await _context.Countries.Include(c => c.States).ToListAsync()) 
+                     : Problem("Entity set 'DataContext.Countries'  is null.");
         }
 
         // GET: Countries/Details/5
@@ -36,7 +36,7 @@ namespace Shooping.Controllers
                 return NotFound();
             }
 
-            var country = await _context.Countries.Include(c => c.States)
+            var country = await _context.Countries.Include(c => c.States)!.ThenInclude(s => s.Cities)
                 .FirstOrDefaultAsync(m => m.Id == id);
             if (country == null)
             {
@@ -64,7 +64,12 @@ namespace Shooping.Controllers
                 return NotFound();
             }
 
-            return View(state);
+            StateVm vm = new()
+            {
+                state = state
+            };
+
+            return View(vm);
         }
 
 
@@ -119,7 +124,7 @@ namespace Shooping.Controllers
 
 
 
-        public async Task<IActionResult> AddState(int? id )
+        public async Task<IActionResult> CreateState(int? id )
         {
             if (id is null)
             {
@@ -132,36 +137,57 @@ namespace Shooping.Controllers
                 return NotFound();
             }
 
-            StateViewModel model = new()
+            //StateViewModel model = new()
+            //{
+            //    CountryId = country.Id
+            //};
+
+            State state = new()
             {
                 CountryId = country.Id
             };
 
-            return View(model);
+
+            StateVm vm = new()
+            {
+                state = state
+            };
+
+
+            return View(vm);
         }
 
-
+        //CreateState
+        //AddState
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Create([Bind("Id,Name")] Country country)
-        public async Task<IActionResult> AddState(StateViewModel model)
+        public async Task<IActionResult> CreateState(StateVm vm)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
-                    State state = new()
-                    {
-                        Cities = new List<City>(),
-                        //Country = await _context.Countries.FindAsync(model.CountryId),
-                        CountryId = model.CountryId,
-                        Name = model.Name
-                    };
+                    //State state = new()
+                    //{
+                    //    Cities = new List<City>(),
+                    //    //Country = await _context.Countries.FindAsync(model.CountryId),
+                    //    CountryId = model.CountryId,
+                    //    Name = model.Name
+                    //};
 
 
-                    _context.Add(state);
+                    //esto se se debe a que hay un campo denominado CountryId y como finaliza con Id,
+                    //tambien le da su valor a Id automaticamiente, asi que le pongo 0 ya que vamos a crearlo.
+                    //esto solo pasa cuando el Id no tiene valor (osea tiene el valor) por ser un reg nuevo.
+
+                    //he notado que enviando lo con VM si se pone a cero el Id pero por lo que sea...
+                    vm.state.Id = 0;  //por lo que sea 
+
+                    _context.Add(vm.state);
+
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Details), new {id = model.CountryId});
+                    return RedirectToAction(nameof(Details), new {id = vm.state.CountryId});
                 }
                 catch (DbUpdateException dbUpdateException)
                 {
@@ -180,8 +206,97 @@ namespace Shooping.Controllers
                     ModelState.AddModelError(string.Empty, exception.Message);
                 }
             }
-            return View(model);
+            return View(vm);
         }
+
+
+
+
+
+
+        public async Task<IActionResult> CreateCity(int? id)
+        {
+            if (id is null)
+            {
+                return NotFound();
+            }
+
+            State? state = await _context.States.FindAsync(id);
+            if (state is null)
+            {
+                return NotFound();
+            }
+
+
+            //StateViewModel model = new()
+            //{
+            //    CountryId = country.Id
+            //};
+
+            //City city = new()
+            //{
+            //    StateId = state.Id
+            //};
+
+            CityVm vm = new()
+            {
+                city = new() { StateId = state.Id }
+            };
+
+            return View(vm);
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("Id,Name")] Country country)
+        public async Task<IActionResult> CreateCity(CityVm vm)
+        {
+            if (ModelState.IsValid)
+            {
+                try
+                {
+                    //State state = new()
+                    //{
+                    //    Cities = new List<City>(),
+                    //    //Country = await _context.Countries.FindAsync(model.CountryId),
+                    //    CountryId = model.CountryId,
+                    //    Name = model.Name
+                    //};
+
+
+                    ////esto se se debe a que hay un campo denominado CountryId y como finaliza con Id,
+                    ////tambien le da su valor a Id automaticamiente, asi que le pongo 0 ya que vamos a crearlo.
+                    ////esto solo pasa cuando el Id no tiene valor (osea tiene el valor) por ser un reg nuevo.
+                    ////PERO CUANDO UTILIZO UN VM QUE TIENE LA CLASE SI DEJA EL ID A CERO (ASI QUE POR AHORA LO COMENTO)
+                    //vm.city.Id = 0;
+
+                    _context.Add(vm.city);
+
+                    await _context.SaveChangesAsync();
+                    return RedirectToAction(nameof(DetailsState), new { id = vm.city.StateId });
+                }
+                catch (DbUpdateException dbUpdateException)
+                {
+                    string messageError = dbUpdateException.InnerException!.Message;
+                    if (messageError.Contains("duplicate") || messageError.Contains("duplicada"))
+                    {
+                        ModelState.AddModelError(string.Empty, "Ya existe una ciudad con el mismo nombre en este Deparatamento/Estado.");
+                    }
+                    else
+                    {
+                        ModelState.AddModelError(string.Empty, dbUpdateException.InnerException.Message);
+                    }
+                }
+                catch (Exception exception)
+                {
+                    ModelState.AddModelError(string.Empty, exception.Message);
+                }
+            }
+            return View(vm);
+        }
+
+
 
 
 
@@ -269,24 +384,30 @@ namespace Shooping.Controllers
                 return NotFound();
             }
 
-            StateViewModel model = new()
+            //StateViewModel model = new()
+            //{
+            //    //CountryId = state.Country.Id, //si hacemos el Include
+            //    CountryId = state.CountryId,
+            //    Id = state.Id,
+            //    Name = state.Name
+            //};
+
+
+            StateVm vm = new()
             {
-                //CountryId = state.Country.Id, //si hacemos el Include
-                CountryId = state.CountryId,
-                Id = state.Id,
-                Name = state.Name
+                state = state,
             };
 
 
-            return View(model);
+            return View(vm);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
         //public async Task<IActionResult> Edit(int id, [Bind("Id,Name")] Country country)
-        public async Task<IActionResult> EditState(int id, StateViewModel model)
+        public async Task<IActionResult> EditState(int id, StateVm vm)
         {
-            if (id != model.Id)
+            if (id != vm.state.Id)
             {
                 return NotFound();
             }
@@ -295,16 +416,16 @@ namespace Shooping.Controllers
             {
                 try
                 {
-                    State state = new()
-                    {
-                        Id = model.Id,
-                        Name= model.Name,
-                        CountryId = model.CountryId,
-                    };
+                    //State state = new()
+                    //{
+                    //    Id = model.Id,
+                    //    Name= model.Name,
+                    //    CountryId = model.CountryId,
+                    //};
 
-                    _context.Update(state);
+                    _context.Update(vm.state);
                     await _context.SaveChangesAsync();
-                    return RedirectToAction(nameof(Details), new { Id = model.CountryId});
+                    return RedirectToAction(nameof(Details), new { Id = vm.state.CountryId});
                 }
                 catch (DbUpdateConcurrencyException)
                 {
@@ -328,7 +449,7 @@ namespace Shooping.Controllers
                 }
 
             }
-            return View(model);
+            return View(vm);
         }
 
 

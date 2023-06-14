@@ -1,21 +1,21 @@
-﻿@model Shooping.Data.Entities.State
+﻿@model Shooping.Models.StateVm
 
 <div>
     <h4>País</h4>
     <hr />
     <dl class="Departamento/Estado">
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            @Html.DisplayNameFor(model => model.state.Name)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.Name)
+            @Html.DisplayFor(model => model.state.Name)
         </dd>
 
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CitiesNumber)
+            @Html.DisplayNameFor(model => model.state.CitiesNumber)
         </dt>
         <dd class="col-sm-10">
-            @Html.DisplayFor(model => model.CitiesNumber)
+            @Html.DisplayFor(model => model.state.CitiesNumber)
         </dd>
     </dl>
 </div>
