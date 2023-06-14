@@ -46,6 +46,29 @@ namespace Shooping.Controllers
             return View(country);
         }
 
+
+
+
+        // GET: Countries/DetailsState/5
+        public async Task<IActionResult> DetailsState(int? id)
+        {
+            if (id == null || _context.States == null)
+            {
+                return NotFound();
+            }
+
+            var state = await _context.States.Include(s => s.Cities)
+                .FirstOrDefaultAsync(m => m.Id == id);
+            if (state == null)
+            {
+                return NotFound();
+            }
+
+            return View(state);
+        }
+
+
+
         // GET: Countries/Create
         public IActionResult Create()
         {
@@ -173,6 +196,9 @@ namespace Shooping.Controllers
             }
 
             var country = await _context.Countries.FindAsync(id);
+            //como su lista de States es nuleable no es necesario buscar los estados de este pais, por eso es bueno 
+            //las litas y objetos de relaciones de entity framework dejarjos nuleables con el simpbolo de pregunta ?
+
             if (country == null)
             {
                 return NotFound();
