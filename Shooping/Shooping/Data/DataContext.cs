@@ -1,12 +1,13 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using Shooping.Data.Entities;
 
 namespace Shooping.Data;
 
-public class DataContext : DbContext
+public class DataContext : IdentityDbContext<User>
 {
     public DataContext(DbContextOptions<DataContext> option): base(option)
-    {
+    { 
 
     }
 
@@ -27,6 +28,8 @@ public class DataContext : DbContext
         modelBuilder.Entity<Country>().HasIndex(c => c.Name).IsUnique();
         //indice no se puede repetetir un nombre de estado en el mismo pais
         modelBuilder.Entity<State>().HasIndex("Name", "CountryId").IsUnique();
+
+        modelBuilder.Entity<City>().HasIndex("Name", "StateId").IsUnique();
 
     }
 

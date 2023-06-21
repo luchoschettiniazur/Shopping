@@ -1,4 +1,4 @@
-﻿@model Shooping.Models.CityVm
+﻿@model Shooping.Data.Entities.State
 @*@model Shooping.Models.StateViewModel*@
 
 @{
@@ -11,16 +11,16 @@
 <hr />
 <div class="row">
     <div class="col-md-12">
-        <form asp-action="CreateCity">
+        <form asp-action="Create">
 
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
-            <input type="hidden" asp-for="city.StateId" />
-            <partial name="_CityCreateEdit" />
+            <input type="hidden" asp-for="CountryId" />
+            <partial name="_CreateEdit" />
 
             <div class="form-group mt-2">
                 <input type="submit" value="Crear" class="btn btn-outline-primary" />
-                <a asp-action="DetailsState" asp-route-id="@Model.city.StateId" class="btn btn-outline-success">Regresar</a>
+                <a asp-controller="Countries" asp-action="Details" asp-route-id="@Model.CountryId" class="btn btn-outline-success">Regresar</a>
             </div>
         </form>
     </div>

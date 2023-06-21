@@ -1,5 +1,8 @@
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data;
+using Shooping.Data.Entities;
+using Shooping.Helpers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +15,49 @@ builder.Services.AddDbContext<DataContext>(o =>
 });
 
 
+//TODO: Make strongest password
+builder.Services.AddIdentity<User, IdentityRole>(cfg =>
+{
+    cfg.User.RequireUniqueEmail = true;
+    cfg.Password.RequireDigit = false;
+    cfg.Password.RequiredUniqueChars = 0;
+    cfg.Password.RequireLowercase = false;
+    cfg.Password.RequireNonAlphanumeric = false;
+    cfg.Password.RequireUppercase = false;
+
+    //cfg.Password.RequiredLength = 6;  //es el predeterminado, si quieres cambiarlo, puedes utilizar esta propiedad.
+
+}).AddEntityFrameworkStores<DataContext>();
+
+
+
+builder.Services.ConfigureApplicationCookie(options =>
+{
+	options.LoginPath = "/Account/NotAuthorized"; //cuando hay problemas con el login lo enviamos a esta pagina.
+	options.AccessDeniedPath = "/Account/NotAuthorized"; //cuando hay problemas con el acceso lo enviamos a esta pagina.
+});
+
+
+
+builder.Services.AddTransient<SeedDb>();
+builder.Services.AddScoped<IUserHelper, UserHelper>();
+
+
 var app = builder.Build();
+
+
+SeedData(app);
+void SeedData(WebApplication app)
+{
+    IServiceScopeFactory? scopedFactory = app.Services.GetService<IServiceScopeFactory>();
+
+    using (IServiceScope? scope = scopedFactory!.CreateScope())
+    {
+        SeedDb? service = scope.ServiceProvider.GetService<SeedDb>();
+        service!.SeedAsync().Wait();
+    }
+}
+
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -22,11 +67,19 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+
+//cuando no encuetre una pagina 
+//cada vez que hay un error el va ejecutar el error y se le va enviar el codigo de error.
+//esto se ejecuta siempre en el Homecontroller, ya que es el que maneja la pagina principal.
+//si el codigo es el 404  -> se le envia al controlador Home ->  [Route("error/404")]
+app.UseStatusCodePagesWithReExecute("/error/{0}");
+
 app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(

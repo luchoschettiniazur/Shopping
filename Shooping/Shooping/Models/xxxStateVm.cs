@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Shooping.Models;
 
-public class StateVm
+public class xxxStateVm
 {
 
     public State state { get; set; } = null!;

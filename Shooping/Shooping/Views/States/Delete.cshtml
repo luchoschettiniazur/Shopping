@@ -1,0 +1,21 @@
+﻿@model Shooping.Data.Entities.State
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Borrar</h1>
+
+<h3>¿Estas seguro de querer borrar?</h3>
+
+<partial name="_DetailsDelete" />
+
+<div>    
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="Borrar" class="btn btn-outline-danger" /> 
+        <a asp-controller="Countries" asp-action="Details" asp-route-id="@Model.CountryId" class="btn btn-outline-success">Regresar</a>
+    </form>
+</div>
+
+

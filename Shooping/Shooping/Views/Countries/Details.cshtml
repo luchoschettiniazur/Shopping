@@ -12,7 +12,7 @@
 <partial name="_DetailsDelete" />
 
 <div>
-    <a asp-action="CreateState" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Agregar Departamento/Estado</a>
+    <a asp-controller="States" asp-action="Create" asp-route-id="@Model?.Id" class="btn btn-outline-primary">Agregar Departamento/Estado</a>
     <a asp-action="Edit" asp-route-id="@Model?.Id" class="btn btn-outline-warning">Editar País</a> 
     <a asp-action="Index" class="btn btn-outline-success">Regresar</a>
 </div>
@@ -51,9 +51,9 @@
                                     @Html.DisplayFor(modelItem => item.CitiesNumber)
                                 </td>
                                 <td>
-                                    <a  asp-action="EditState" asp-route-id="@item.Id" class="btn btn-outline-warning">Editar</a>
-                                    <a asp-action="DetailsState" asp-route-id="@item.Id" class="btn btn-outline-info">Detalle</a>
-                                    <a asp-action="DeleteState" asp-route-id="@item.Id" class="btn btn-outline-danger">Borrar</a>
+                                    <a asp-controller="States" asp-action="Edit" asp-route-id="@item.Id" class="btn btn-outline-warning">Editar</a>
+                                    <a asp-controller="States" asp-action="Details" asp-route-id="@item.Id" class="btn btn-outline-info">Detalle</a>
+                                    <a asp-controller="States" asp-action="Delete" asp-route-id="@item.Id" class="btn btn-outline-danger">Borrar</a>
                                 </td>
                             </tr>
                         }
