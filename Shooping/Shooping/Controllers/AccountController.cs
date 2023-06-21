@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Shooping.Helpers;
+using Shooping.Helpers.Auth;
 using Shooping.Models;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 

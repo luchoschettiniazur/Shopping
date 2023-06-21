@@ -1,6 +1,6 @@
 ﻿using Shooping.Data.Entities;
 using Shooping.Enums;
-using Shooping.Helpers;
+using Shooping.Helpers.Auth;
 
 namespace Shooping.Data;
 

@@ -4,7 +4,7 @@ using Shooping.Data;
 using Shooping.Data.Entities;
 using Shooping.Models;
 
-namespace Shooping.Helpers;
+namespace Shooping.Helpers.Auth;
 
 public class UserHelper : IUserHelper
 {
@@ -14,7 +14,7 @@ public class UserHelper : IUserHelper
     private readonly SignInManager<User> _singnInManager;
 
     public UserHelper(DataContext context, UserManager<User> userManager,
-        RoleManager<IdentityRole> roleManager, SignInManager<User> singnInManager )
+        RoleManager<IdentityRole> roleManager, SignInManager<User> singnInManager)
     {
         _context = context;
         _userManager = userManager;

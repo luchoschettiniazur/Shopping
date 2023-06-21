@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data;
 using Shooping.Data.Entities;
-using Shooping.Helpers;
+using Shooping.Helpers.Auth;
+using Shooping.Helpers.Combo;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +42,7 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddTransient<SeedDb>();
 builder.Services.AddScoped<IUserHelper, UserHelper>();
+builder.Services.AddScoped<ICombosHelper, ICombosHelper>();
 
 
 var app = builder.Build();

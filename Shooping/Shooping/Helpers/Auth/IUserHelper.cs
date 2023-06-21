@@ -2,7 +2,7 @@
 using Shooping.Data.Entities;
 using Shooping.Models;
 
-namespace Shooping.Helpers;
+namespace Shooping.Helpers.Auth;
 
 public interface IUserHelper
 {
