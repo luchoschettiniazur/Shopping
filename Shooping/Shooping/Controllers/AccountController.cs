@@ -56,10 +56,20 @@ public class AccountController : Controller
 				return RedirectToAction("Index", "Home");
 			}
 
-			ModelState.AddModelError(string.Empty, "Email o contraseña incorrectos.");
-		}
 
-		return View(model);
+            if (result.IsLockedOut)
+            {
+                ModelState.AddModelError(string.Empty, "Ha superado el máximo número de intentos, su cuenta está bloqueada, intente de nuevo en 5 minutos.");
+            }
+            else
+            {
+                ModelState.AddModelError(string.Empty, "Email o contraseña incorrectos.");
+            }
+
+
+        }
+
+        return View(model);
 	}
 
 

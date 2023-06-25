@@ -109,7 +109,8 @@ public class UserHelper : IUserHelper
 
     public async Task<SignInResult> LoginAsync(LoginViewModel model)
     {
-        return await _singnInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, lockoutOnFailure: false);
+        return await _singnInManager.PasswordSignInAsync(model.Username, model.Password, 
+            model.RememberMe, lockoutOnFailure: true);
     }
 
     public async Task LogoutAsync()

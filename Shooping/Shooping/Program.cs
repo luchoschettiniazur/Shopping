@@ -36,6 +36,12 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
     cfg.Password.RequireNonAlphanumeric = false;
     cfg.Password.RequireUppercase = false;
 
+
+    cfg.Lockout.MaxFailedAccessAttempts = 3; //por defecto es 5
+    cfg.Lockout.AllowedForNewUsers = true;  //tambien bloquear nuevos usuarios 
+    cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+
+
     //cfg.Password.RequiredLength = 6;  //es el predeterminado, si quieres cambiarlo, puedes utilizar esta propiedad.
 
 }).AddEntityFrameworkStores<DataContext>();
