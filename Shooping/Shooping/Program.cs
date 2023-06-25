@@ -1,14 +1,24 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data;
-using Shooping.Data.Entities;
+using Shooping.Data.Identity;
 using Shooping.Helpers.Auth;
+using Shooping.Helpers.Blob;
 using Shooping.Helpers.Combo;
+using Shooping.Helpers.Combos;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+
+
+////NO VEO QUE HAGA NADA EN MVC (EN API SI FUNCIONA) VER COMO HACER ESTO DE OTRA FORMA:
+//builder.Services.AddControllersWithViews()
+//         .AddJsonOptions(x => x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
 builder.Services.AddControllersWithViews();
+
+
 
 builder.Services.AddDbContext<DataContext>(o =>
 {
@@ -42,7 +52,9 @@ builder.Services.ConfigureApplicationCookie(options =>
 
 builder.Services.AddTransient<SeedDb>();
 builder.Services.AddScoped<IUserHelper, UserHelper>();
-builder.Services.AddScoped<ICombosHelper, ICombosHelper>();
+builder.Services.AddScoped<ICombosHelper, CombosHelper>();
+builder.Services.AddScoped<IBlobHelper, BlobHelper>();
+
 
 
 var app = builder.Build();

@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Shooping.Data.Entities;
 using Shooping.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace Shooping.Data.Entities;
+namespace Shooping.Data.Identity;
 
-public class User: IdentityUser
+public class User : IdentityUser
 {
 
     [Display(Name = "Documento")]
@@ -45,7 +46,7 @@ public class User: IdentityUser
     [Display(Name = "Foto")]
     public string ImageFullPath => ImageId == Guid.Empty
         ? $"https://localhost:7057/images/noimage.png"
-        : $"https://shoppingprep.blob.core.windows.net/users/{ImageId}";
+        : $"https://sales2023storageaccount.blob.core.windows.net/users-mvc/{ImageId}";
 
 
 

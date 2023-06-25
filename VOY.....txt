@@ -1,0 +1,7 @@
+
+En ChangeUser me carga los cmapos de la derecha con otros datos no los del
+usuario, estoy en el minuto 48:06 del video 13 mirar que pasa
+
+ChangeUser  del accountController  (veo que los datos los carga bien) pero
+en la vista hace cosas raras y como hay un vista parcial _CreateEditUser, no
+se que esta haciendo mal.....

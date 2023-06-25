@@ -1,4 +1,5 @@
 ﻿using Shooping.Data.Entities;
+using Shooping.Data.Identity;
 using Shooping.Enums;
 using Shooping.Helpers.Auth;
 

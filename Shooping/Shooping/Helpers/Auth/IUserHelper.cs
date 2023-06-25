@@ -1,5 +1,5 @@
 ﻿using Microsoft.AspNetCore.Identity;
-using Shooping.Data.Entities;
+using Shooping.Data.Identity;
 using Shooping.Models;
 
 namespace Shooping.Helpers.Auth;
@@ -11,7 +11,9 @@ public interface IUserHelper
 
     Task<IdentityResult> AddUserAsync(User user, string password);
 
-    Task CheckRoleAsync(string roleName);
+	Task<User?> AddUserAsync(AddUserViewModel modelo);
+
+	Task CheckRoleAsync(string roleName);
 
     Task AddUserToRoleAsync(User user, string roleName);
 
@@ -22,6 +24,18 @@ public interface IUserHelper
     Task<SignInResult> LoginAsync(LoginViewModel model);
 
     Task LogoutAsync();
+
+
+
+    Task<IdentityResult> ChangePasswordAsync(User user, string oldPassword, string newPassword);
+
+    Task<IdentityResult> UpdateUserAsync(User user);
+
+    Task<User> GetUserAsync(Guid userId);
+
+
+
+
 
 
 }

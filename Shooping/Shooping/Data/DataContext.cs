@@ -1,6 +1,9 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data.Entities;
+using Shooping.Data.Identity;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Shooping.Data;
 
@@ -10,6 +13,12 @@ public class DataContext : IdentityDbContext<User>
     { 
 
     }
+//    Severity Code    Description Project File Line    Suppression State
+//Error CS0234  The type or namespace name 'User' does not exist in the namespace 'Shooping.Data.Entities'
+//(are you missing an assembly reference?)	Shooping
+//C:\____Proyectos\ZULU\MVC\Curso 68\Shooping\Shooping\
+//Microsoft.NET.Sdk.Razor.SourceGenerators\Microsoft.NET.Sdk.Razor.SourceGenerators.RazorSourceGenerator\
+//Views_Users_Index_cshtml.g.cs	32	Active
 
 
     public DbSet<Category> Categories { get; set; }
