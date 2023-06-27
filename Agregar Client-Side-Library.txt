@@ -1,0 +1,33 @@
+
+En este ejemplo descargaremos para su uso font-awesome:
+********************************************************
+
+1) Boton derecho sobre wwwroot/lib
+
+2) Add
+	Client-Side-Library
+
+		En el buscador ponemos en Library: "font-awesome..." y intro
+		con esto el ya busca, en este caso encuetra "font-awesome@6.4.0" y
+		en la parte la pate de abajo sale todo los ficheros que va a descargar,
+		en este caso le damos al boton "Instal" (para que descargue todo)
+
+********************************************************
+
+Ahora veras que hay una nueva carpeta en    wwwroot/lib/font-awesome@6.4.0 (que contiene todo lo que se descargo)
+Tambien se creo en la raiz del proyecto un fichero llamado "libman.json", desde este fichero json podemos cambiar la version,
+desistalar o poner otras librerias (asi que podemos trabajar si te sientes comodo ya desde ese json si te sientes comodo)
+
+Ahora pader utilizar lo que hemos descargado hay que añdir al fichero "_Layout.cshtml" hay que agregar los estilos, en el head,
+donde se ponen normalmete los css 
+
+...
+   <link rel="stylesheet" href="~/lib/font-awesome/css/all.min.css" />
+</head>
+
+y en el body (en el final pero antes del  @await RenderSectionAsync("Scripts", required: false))
+
+...
+    <script src="~/lib/font-awesome/js/fontawesome.js"></script>
+    @await RenderSectionAsync("Scripts", required: false)  <--OJO ANTES DE ESTE 
+</body>

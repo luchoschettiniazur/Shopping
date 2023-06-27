@@ -48,7 +48,7 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 
     cfg.Lockout.MaxFailedAccessAttempts = 3; //por defecto es 5
     cfg.Lockout.AllowedForNewUsers = true;  //tambien bloquear nuevos usuarios 
-    cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
+    cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(2);
 
 
     //cfg.Password.RequiredLength = 6;  //es el predeterminado, si quieres cambiarlo, puedes utilizar esta propiedad.

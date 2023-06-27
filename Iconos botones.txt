@@ -1,0 +1,5 @@
+                                    @*                                    
+                                    <i class="fa-solid fa-pen-to-square"></i>  EDIT
+                                    <i class="fa-solid fa-circle-info"></i>    DETAILS
+                                    <i class="fa-solid fa-trash"></i>          DELETE
+                                    *@
