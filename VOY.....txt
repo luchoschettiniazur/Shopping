@@ -1,7 +1,10 @@
 
-En ChangeUser me carga los cmapos de la derecha con otros datos no los del
-usuario, estoy en el minuto 48:06 del video 13 mirar que pasa
+En la clase MailHelper
 
-ChangeUser  del accountController  (veo que los datos los carga bien) pero
-en la vista hace cosas raras y como hay un vista parcial _CreateEditUser, no
-se que esta haciendo mal.....
+metodo SendMail
+
+da error aqui mirar porque-->
+client.Connect(smtp, int.Parse(port!), false);
+
+ir borrando el usuario en bbdd Brad Pitt (en cada prueba)
+mirar tambien el proyecto de blazor que si sale bien.

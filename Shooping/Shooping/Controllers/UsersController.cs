@@ -10,6 +10,8 @@ using Shooping.Models;
 using System.Data;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data.Identity;
+using Shooping.Helpers.Email;
+using Shooping.Common;
 
 namespace Shooping.Controllers;
 
@@ -20,15 +22,18 @@ public class UsersController : Controller
     private readonly DataContext _context;
     private readonly ICombosHelper _combosHelper;
     private readonly IBlobHelper _blobHelper;
+    private readonly IMailHelper _mailHelper;
 
     public UsersController(IUserHelper userHelper, DataContext context, 
         ICombosHelper combosHelper, 
-        IBlobHelper blobHelper)
+        IBlobHelper blobHelper,
+        IMailHelper mailHelper)
     {
         _userHelper = userHelper;
         _context = context;
         _combosHelper = combosHelper;
         _blobHelper = blobHelper;
+        _mailHelper = mailHelper;
     }
 
     public async Task<IActionResult> Index()
@@ -41,11 +46,13 @@ public class UsersController : Controller
     }
 
 
+    //OJO:
+    //Este controller UserController es para adminsitradores
+    //- lista de usuarios (index) con opciones de adminstrador.
+    //- crear administradores
 
 
-
-
-
+    //Ojo para que seapas En el accountcontroller es el metodo Register()
     public async Task<IActionResult> Create()
     {
         AddUserViewModel model = new AddUserViewModel
@@ -88,12 +95,37 @@ public class UsersController : Controller
             }
 
 
-            //no hace falta logearlo directamente.
-          
 
-            return RedirectToAction("Index", "Home");
-       
+            //Para enviar email para confirmacion de creacion de usuario:
+            //********************************>>>
+            string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+            string tokenLink = Url.Action("ConfirmEmail", "Account", new
+            {
+                userid = user.Id,
+                token = myToken
+            }, protocol: HttpContext.Request.Scheme)!;
+
+            Response response = _mailHelper.SendMail(
+                toName: $"{addUserViewModel.FirstName} {addUserViewModel.LastName}",
+                toEmail: addUserViewModel.Username,
+                subject: "Shopping - Confirmación de Email",
+                body: $"<h1>Shopping - Confirmación de Email</h1>" +
+                    $"<p>Para habilitar el usuario, por favor hacer clic 'Confirmar Email':</p>" +
+                    $"<b><a href ={tokenLink}>Confirmar Email</a></b>");
+            if (response.IsSuccess)
+            {
+                ViewBag.Message = "Las instrucciones para habilitar el administrador han sido enviadas al correo.";
+                return View(addUserViewModel);
+            }
+
+            ModelState.AddModelError(string.Empty, response.Message!);
+            //********************************<<<
+
+
+            //return RedirectToAction("Index", "Home");
+
         } //fin -> if (ModelState.IsValid)
+
 
         //SI LLEGA HASTA AQUI ES PORQUE NO ES VALIDO EL ModelState:
         //recargar los combos

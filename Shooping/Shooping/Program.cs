@@ -2,10 +2,12 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data;
 using Shooping.Data.Identity;
+using Shooping.Helpers;
 using Shooping.Helpers.Auth;
 using Shooping.Helpers.Blob;
 using Shooping.Helpers.Combo;
 using Shooping.Helpers.Combos;
+using Shooping.Helpers.Email;
 using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,6 +31,13 @@ builder.Services.AddDbContext<DataContext>(o =>
 //TODO: Make strongest password
 builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 {
+    //para que cree token por default.
+    cfg.Tokens.AuthenticatorTokenProvider = TokenOptions.DefaultAuthenticatorProvider;
+    //para que requiera confirmacion de email (para eso necetimaso haber hablitado los token)
+    //, lo de la linea de arriba
+    cfg.SignIn.RequireConfirmedEmail = true;
+
+
     cfg.User.RequireUniqueEmail = true;
     cfg.Password.RequireDigit = false;
     cfg.Password.RequiredUniqueChars = 0;
@@ -39,12 +48,14 @@ builder.Services.AddIdentity<User, IdentityRole>(cfg =>
 
     cfg.Lockout.MaxFailedAccessAttempts = 3; //por defecto es 5
     cfg.Lockout.AllowedForNewUsers = true;  //tambien bloquear nuevos usuarios 
-    cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(1);
+    cfg.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(5);
 
 
     //cfg.Password.RequiredLength = 6;  //es el predeterminado, si quieres cambiarlo, puedes utilizar esta propiedad.
 
-}).AddEntityFrameworkStores<DataContext>();
+})
+    .AddDefaultTokenProviders() //(ya que habilitamos lo de los token) es nesario para la confirmacion del email.
+    .AddEntityFrameworkStores<DataContext>();
 
 
 
@@ -60,6 +71,7 @@ builder.Services.AddTransient<SeedDb>();
 builder.Services.AddScoped<IUserHelper, UserHelper>();
 builder.Services.AddScoped<ICombosHelper, CombosHelper>();
 builder.Services.AddScoped<IBlobHelper, BlobHelper>();
+builder.Services.AddScoped<IMailHelper, MailHelper>();
 
 
 

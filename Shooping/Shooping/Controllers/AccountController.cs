@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Razor.Language.Intermediate;
 using Microsoft.EntityFrameworkCore;
+using Shooping.Common;
 using Shooping.Data;
 using Shooping.Data.Entities;
 using Shooping.Data.Identity;
@@ -9,6 +11,7 @@ using Shooping.Helpers.Auth;
 using Shooping.Helpers.Blob;
 using Shooping.Helpers.Combo;
 using Shooping.Helpers.Combos;
+using Shooping.Helpers.Email;
 using Shooping.Models;
 using SignInResult = Microsoft.AspNetCore.Identity.SignInResult;
 
@@ -22,16 +25,18 @@ public class AccountController : Controller
 	private readonly DataContext _context;
 	private readonly ICombosHelper _combosHelper;
 	private readonly IBlobHelper _blobHelper;
+    private readonly IMailHelper _mailHelper;
 
-	public AccountController(IUserHelper userHelper,
+    public AccountController(IUserHelper userHelper,
 		DataContext context, ICombosHelper combosHelper,
-		IBlobHelper blobHelper)
+		IBlobHelper blobHelper, IMailHelper mailHelper)
 	{
 		_userHelper = userHelper;
 		_context = context;
 		_combosHelper = combosHelper;
 		_blobHelper = blobHelper;
-	}
+        _mailHelper = mailHelper;
+    }
 
 
 
@@ -57,9 +62,13 @@ public class AccountController : Controller
 			}
 
 
-            if (result.IsLockedOut)
+            if (result.IsLockedOut)//el usuario esta bloqueado un determinado tiempo
             {
                 ModelState.AddModelError(string.Empty, "Ha superado el máximo número de intentos, su cuenta está bloqueada, intente de nuevo en 5 minutos.");
+            }
+            else if (result.IsNotAllowed) //el usuario no esta confirmado
+            {
+                ModelState.AddModelError(string.Empty, "El usuario no ha sido habilitado, debes de seguir las instrucciones del correo enviado para poder habilitarte el sistema.");
             }
             else
             {
@@ -99,7 +108,18 @@ public class AccountController : Controller
 			UserType = UserType.User,
 		};
 
-		return View(model);
+        //solo para pruebas (no grabar tanto)
+        model.Document = "x140898952GX";
+        model.FirstName = "Brad";
+        model.LastName = "Pitt";
+        model.Address = "calle mi dirección, 1";
+        model.PhoneNumber = "322 311 123";
+
+
+
+
+
+        return View(model);
 	}
 
 	[HttpPost]
@@ -129,21 +149,47 @@ public class AccountController : Controller
 			}
 
 
-            //lo logueamos directamente:
-            LoginViewModel loginViewModel = new LoginViewModel
+            //Para enviar email para confirmacion de creacion de usuario:
+            //********************************>>>
+            string myToken = await _userHelper.GenerateEmailConfirmationTokenAsync(user);
+            string tokenLink = Url.Action("ConfirmEmail", "Account", new
             {
-                Password = addUserViewModel.Password,
-                RememberMe = false,
-                Username = addUserViewModel.Username
-            };
-            var result = await _userHelper.LoginAsync(loginViewModel);
+                userid = user.Id,
+                token = myToken
+            }, protocol: HttpContext.Request.Scheme)!;
 
-
-            if (result.Succeeded)
+            Response response = _mailHelper.SendMail(
+                toName: $"{addUserViewModel.FirstName} {addUserViewModel.LastName}",
+                toEmail: addUserViewModel.Username,
+                subject: "Shopping - Confirmación de Email",
+                body: $"<h1>Shopping - Confirmación de Email</h1>" +
+                    $"<p>Para habilitar el usuario, por favor hacer clic 'Confirmar Email':</p>" +
+                    $"<b><a href ={tokenLink}>Confirmar Email</a></b>");
+            if (response.IsSuccess)
             {
-                return RedirectToAction("Index", "Home");
+                ViewBag.Message = "Las instrucciones para habilitar el usuario han sido enviadas al correo.";
+                return View(addUserViewModel);
             }
 
+            ModelState.AddModelError(string.Empty, response.Message!);
+            //********************************<<<
+
+
+            ////Lo logueamos directamente:
+            ////**********************************
+            //LoginViewModel loginViewModel = new LoginViewModel
+            //{
+            //    Password = addUserViewModel.Password,
+            //    RememberMe = false,
+            //    Username = addUserViewModel.Username
+            //};
+            //var result = await _userHelper.LoginAsync(loginViewModel);
+            //if (result.Succeeded)
+            //{
+            //    return RedirectToAction("Index", "Home");
+            //}
+            ////**********************************
+            
         } //fin -> if (ModelState.IsValid)
 
         //SI LLEGA HASTA AQUI ES PORQUE NO ES VALIDO EL ModelState:
@@ -267,6 +313,107 @@ public class AccountController : Controller
     }
 
 
+
+
+    public async Task<IActionResult> ConfirmEmail(string userId, string token)
+    {
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+        {
+            return NotFound();
+        }
+
+        User user = await _userHelper.GetUserAsync(new Guid(userId));
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        IdentityResult result = await _userHelper.ConfirmEmailAsync(user, token);
+        if (!result.Succeeded)
+        {
+            return NotFound();
+        }
+
+        return View();
+    }
+
+
+
+
+
+
+
+
+
+    //Recover Password -> es cuando yo le pido el email y mando el link por email para hacer el reset
+    public IActionResult RecoverPassword()
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> RecoverPassword(RecoverPasswordViewModel model)
+    {
+        if (ModelState.IsValid)
+        {
+            User user = await _userHelper.GetUserAsync(model.Email);
+            if (user == null)
+            {
+                ModelState.AddModelError(string.Empty, "El email no corresponde a ningún usuario registrado.");
+                return View(model);
+            }
+
+            string myToken = await _userHelper.GeneratePasswordResetTokenAsync(user);
+
+            string link =
+                Url.Action("ResetPassword", "Account", 
+                new { token = myToken }, protocol: HttpContext.Request.Scheme)!;
+
+            _mailHelper.SendMail(
+                toName: $"{user.FullName}",
+                toEmail: model.Email,
+                subject: "Shopping - Recuperación de Contraseña",
+                body: $"<h1>Shopping - Recuperación de Contraseña</h1>" +
+                $"\"<p>Para recuperar la contraseña haga click en el siguiente enlace:</p>" +
+                $"<p><a href ={link}>Reset Password</a></p>");
+
+            ViewBag.Message = "Las instrucciones para recuperar la contraseña han sido enviadas a su correo.";
+            return View();
+        }
+
+        return View(model);
+    }
+
+
+
+
+    //Reset Password -> es cuando el usuario hizo click en el link del email (ese link va a este action)
+    //y con este codigo resetea el password.
+    public IActionResult ResetPassword(string token)
+    {
+        return View();
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+    {
+        User user = await _userHelper.GetUserAsync(model.UserName);
+        if (user != null)
+        {
+            IdentityResult result = await _userHelper.ResetPasswordAsync(user, model.Token, model.Password);
+            if (result.Succeeded)
+            {
+                ViewBag.Message = "Contraseña cambiada con éxito.";
+                return View();
+            }
+
+            ViewBag.Message = "Error cambiando la contraseña.";
+            return View(model);
+        }
+
+        ViewBag.Message = "Usuario no encontrado.";
+        return View(model);
+    }
 
 
 
