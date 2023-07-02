@@ -1,4 +1,5 @@
-﻿using Shooping.Data.Entities;
+﻿using Microsoft.EntityFrameworkCore;
+using Shooping.Data.Entities;
 using Shooping.Data.Identity;
 using Shooping.Enums;
 using Shooping.Helpers.Auth;
@@ -22,6 +23,13 @@ public class SeedDb
         //crea la BBDD y aplica las migraciones (si no hay bbdd la crea)
         //es como correr el Update-database
         await _context.Database.EnsureCreatedAsync();
+
+        //ERROR  -> Ya hay un objeto con el nombre 'Countries' en la base de datos.
+        //PERO NO SE QUE PUEDO HACER PARA ARREGLARLO, (TAMPOCO PUDE CON ESTO IR MIRANDO PARA VER QUE PUEDEO HACER) 
+        ////Esto sucedió porque cuando realiza la eliminación de la base de datos y
+        ////luego usa Seeder, pierde el historial de migraciones en la base de datos.
+        ////Utilizar el await _context.Database.MigrateAsync() en la Seeder.
+        //await _context.Database.MigrateAsync();
 
         await CheCategoriesAsync();
         await CheckCountriesAsync();

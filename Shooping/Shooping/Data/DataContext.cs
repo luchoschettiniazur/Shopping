@@ -3,6 +3,7 @@ using Microsoft.CodeAnalysis.Diagnostics;
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data.Entities;
 using Shooping.Data.Identity;
+using System.Globalization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Shooping.Data;
@@ -24,6 +25,10 @@ public class DataContext : IdentityDbContext<User>
     public DbSet<Category> Categories { get; set; }
     public DbSet<City> Cities { get; set; }
     public DbSet<Country> Countries { get; set; }
+    public DbSet<Product> Products { get; set; }
+    public DbSet<ProductCategory> ProductCategories { get; set; }
+    public DbSet<ProductImage> ProductImages { get; set; }
+
     public DbSet<State> States { get; set; }
 
 
@@ -39,7 +44,13 @@ public class DataContext : IdentityDbContext<User>
         modelBuilder.Entity<State>().HasIndex("Name", "CountryId").IsUnique();
 
         modelBuilder.Entity<City>().HasIndex("Name", "StateId").IsUnique();
+        //OJO (MUY INTERESANTE LO QUE VIENE COMENTADO)
+        ////Asi podriamos hacer que no tenga en cuenta los registros en estdo false para el indice unico,
+        ////si habiera un ya un nombre repetido pero en estado false no lo tendira en cuenta para el indice unico.
+        //modelBuilder.Entity<City>().HasIndex("Name", "StateId").IsUnique().HasFilter("NomCampoEstado = 'false'");
 
+        modelBuilder.Entity<Product>().HasIndex(c => c.Name).IsUnique();
+        modelBuilder.Entity<ProductCategory>().HasIndex("ProductId", "CategoryId").IsUnique();
     }
 
 }

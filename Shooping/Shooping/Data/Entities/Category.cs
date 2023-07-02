@@ -13,4 +13,7 @@ public class Category
     public string Name { get; set; } = null!;
 
 
+    public ICollection<ProductCategory>? ProductCategories { get; set; }
+
+
 }

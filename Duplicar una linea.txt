@@ -1,0 +1,9 @@
+ 
+Si sobre la linea de cogigo le hago   ( control + c    y   control + v ) 
+el ya duplica la linea directamente en una lina siguiente (si hay texto de bajo lo enpuja hacia abajo y lo lo pirde)
+Esto es muy comodo, por ejemplo para salvar el codigo como esta antes, para una lita etc..
+
+Ejemplo:
+
+    private readonly ICombosHelper _comboHelper;
+    private readonly ICombosHelper _comboHelper;

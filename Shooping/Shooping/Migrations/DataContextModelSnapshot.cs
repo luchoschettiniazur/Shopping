@@ -220,6 +220,83 @@ namespace Shooping.Migrations
                     b.ToTable("Countries");
                 });
 
+            modelBuilder.Entity("Shooping.Data.Entities.Product", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<decimal>("Price")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<float>("Stock")
+                        .HasColumnType("real");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("Shooping.Data.Entities.ProductCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoryId");
+
+                    b.HasIndex("ProductId", "CategoryId")
+                        .IsUnique();
+
+                    b.ToTable("ProductCategories");
+                });
+
+            modelBuilder.Entity("Shooping.Data.Entities.ProductImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<Guid>("ImageId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
+                });
+
             modelBuilder.Entity("Shooping.Data.Entities.State", b =>
                 {
                     b.Property<int>("Id")
@@ -246,7 +323,7 @@ namespace Shooping.Migrations
                     b.ToTable("States");
                 });
 
-            modelBuilder.Entity("Shooping.Data.Entities.User", b =>
+            modelBuilder.Entity("Shooping.Data.Identity.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -353,7 +430,7 @@ namespace Shooping.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("Shooping.Data.Entities.User", null)
+                    b.HasOne("Shooping.Data.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -362,7 +439,7 @@ namespace Shooping.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("Shooping.Data.Entities.User", null)
+                    b.HasOne("Shooping.Data.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -377,7 +454,7 @@ namespace Shooping.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Shooping.Data.Entities.User", null)
+                    b.HasOne("Shooping.Data.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -386,7 +463,7 @@ namespace Shooping.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("Shooping.Data.Entities.User", null)
+                    b.HasOne("Shooping.Data.Identity.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -404,6 +481,36 @@ namespace Shooping.Migrations
                     b.Navigation("State");
                 });
 
+            modelBuilder.Entity("Shooping.Data.Entities.ProductCategory", b =>
+                {
+                    b.HasOne("Shooping.Data.Entities.Category", "Category")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("CategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Shooping.Data.Entities.Product", "Product")
+                        .WithMany("ProductCategories")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Category");
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("Shooping.Data.Entities.ProductImage", b =>
+                {
+                    b.HasOne("Shooping.Data.Entities.Product", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("Shooping.Data.Entities.State", b =>
                 {
                     b.HasOne("Shooping.Data.Entities.Country", "Country")
@@ -415,7 +522,7 @@ namespace Shooping.Migrations
                     b.Navigation("Country");
                 });
 
-            modelBuilder.Entity("Shooping.Data.Entities.User", b =>
+            modelBuilder.Entity("Shooping.Data.Identity.User", b =>
                 {
                     b.HasOne("Shooping.Data.Entities.City", "City")
                         .WithMany("Users")
@@ -426,6 +533,11 @@ namespace Shooping.Migrations
                     b.Navigation("City");
                 });
 
+            modelBuilder.Entity("Shooping.Data.Entities.Category", b =>
+                {
+                    b.Navigation("ProductCategories");
+                });
+
             modelBuilder.Entity("Shooping.Data.Entities.City", b =>
                 {
                     b.Navigation("Users");
@@ -434,6 +546,13 @@ namespace Shooping.Migrations
             modelBuilder.Entity("Shooping.Data.Entities.Country", b =>
                 {
                     b.Navigation("States");
+                });
+
+            modelBuilder.Entity("Shooping.Data.Entities.Product", b =>
+                {
+                    b.Navigation("ProductCategories");
+
+                    b.Navigation("ProductImages");
                 });
 
             modelBuilder.Entity("Shooping.Data.Entities.State", b =>
