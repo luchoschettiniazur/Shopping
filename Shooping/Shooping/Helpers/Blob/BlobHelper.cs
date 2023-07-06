@@ -18,9 +18,11 @@ public class BlobHelper : IBlobHelper
 
 	public async Task DeleteBlobAsync(Guid id, string containerName)
 	{
-		CloudBlobContainer container = _blobClient.GetContainerReference(containerName);
-		CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{id}");
-		await blockBlob.DeleteAsync();
+			CloudBlobContainer container = _blobClient.GetContainerReference(containerName);
+			CloudBlockBlob blockBlob = container.GetBlockBlobReference($"{id}");
+            
+            //await blockBlob.DeleteAsync();    //este da error si no puede eliminarlo por lo que sea
+            await blockBlob.DeleteIfExistsAsync();   //este no da error si no lo puede eliminar por lo que sea
 	}
 
 

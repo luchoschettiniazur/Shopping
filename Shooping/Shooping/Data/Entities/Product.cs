@@ -33,14 +33,17 @@ public class Product
 
 
 
-    public ICollection<ProductCategory>? ProductCategories { get; set; }
+    //public ICollection<ProductCategory>? ProductCategories { get; set; }
+    public ICollection<ProductCategory> ProductCategories { get; set; } = new HashSet<ProductCategory>();
 
     [Display(Name = "Categorías")]
     public int CategoriesNumber => ProductCategories == null ? 0 : ProductCategories.Count;
 
 
 
-    public ICollection<ProductImage>? ProductImages { get; set; }
+    //public ICollection<ProductImage>? ProductImages { get; set; }
+    public ICollection<ProductImage> ProductImages { get; set; } = new HashSet<ProductImage>();
+
 
     [Display(Name = "Fotos")]
     public int ImagesNumber => ProductImages == null ? 0 : ProductImages.Count;

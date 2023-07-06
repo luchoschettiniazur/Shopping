@@ -1,10 +1,14 @@
 ﻿using Microsoft.AspNetCore.Mvc.Rendering;
+using Shooping.Data.Entities;
 
 namespace Shooping.Helpers.Combo;
 
 public interface ICombosHelper
 {
 	Task<IEnumerable<SelectListItem>> GetComboCategoriesAsync();
+
+
+	Task<IEnumerable<SelectListItem>> GetComboCategoriesNotInProductAsync(int productId);
 
 
 

@@ -14,7 +14,7 @@ public class Country
     public string Name { get; set; } = null!;
 
 
-    public ICollection<State>? States { get; set; }
+    public ICollection<State> States { get; set; } = new HashSet<State>();
 
     //las propiedades de solo lectura no se mapean en BBDD
     [Display(Name = "Departamentos/Estados")]

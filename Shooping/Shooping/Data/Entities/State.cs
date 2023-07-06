@@ -23,7 +23,7 @@ public class State
 
 
 
-    public ICollection<City>? Cities { get; set; }
+    public ICollection<City> Cities { get; set; } = new HashSet<City>();
 
     //las propiedades de solo lectura no se mapean a bbdd
     [Display(Name = "Ciudades")]

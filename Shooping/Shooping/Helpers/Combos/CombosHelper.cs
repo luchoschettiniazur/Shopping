@@ -31,8 +31,42 @@ public class CombosHelper : ICombosHelper
 		return list;
 	}
 
+    public async Task<IEnumerable<SelectListItem>> GetComboCategoriesNotInProductAsync(int productId)
+    {
+		//Producto con su lista de categorias escogidas actualmente.
+        Product? product = await _context.Products
+            .Include(p => p.ProductCategories).ThenInclude(pc => pc.Category)
+            .FirstOrDefaultAsync(p => p.Id == productId);
 
-	public async Task<IEnumerable<SelectListItem>> GetComboCountriesAsync()
+
+		//para hacer el filtro dentro del link tiene que ser una lista de numeros
+        List<int> idsCategoriasYaElegidas = new List<int>();
+        if (product is not null)
+        {
+			foreach (var item in product.ProductCategories)
+			{
+				idsCategoriasYaElegidas.Add(item.CategoryId);
+            }
+        }
+
+        //lista de SelectListItem de las Categorias no escogidas actualmente en el producto
+        List<SelectListItem> list = await _context.Categories
+		.Where(cat => !idsCategoriasYaElegidas.Any(filt => filt == cat.Id))
+		.Select(cat => new SelectListItem()
+		{
+			Text = cat.Name,
+			Value = cat.Id.ToString()
+		})
+		.OrderBy(sel => sel.Text)
+		.ToListAsync();
+
+        list.Insert(0, new SelectListItem() { Text = "[Seleccione una categoría...]", Value = "0" });
+
+        return list;
+    }
+
+
+    public async Task<IEnumerable<SelectListItem>> GetComboCountriesAsync()
 	{
 		List<SelectListItem> list = await _context.Countries
 			.Select(cou => new SelectListItem()

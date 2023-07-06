@@ -1,2 +1,26 @@
 ﻿<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
 <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+
+
+
+@*solo si se validan decimales*@
+@*esto se debe que cundo intenta guarear el decimal el simbolo "," da error con esto lo arreglamos*@
+@*No hace falta llamar a este scrip, ya que se utiliza donde usemos esta vista parcial "_ValidationScriptsPartial.cshtml"*@
+<script type="text/javascript">
+
+    $.validator.methods.number = function (value, element) {
+        if (getDecimalSeparator() == ",") {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\,\d+)?$/.test(value);
+        } else {
+            return this.optional(element) || /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value);
+        }
+    }
+
+    function getDecimalSeparator() {
+        var n = 3 / 2;
+        n = n.toLocaleString().substring(1, 2);
+        return n;
+    }
+</script>
+
