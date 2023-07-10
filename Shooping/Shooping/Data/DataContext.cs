@@ -31,6 +31,8 @@ public class DataContext : IdentityDbContext<User>
 
     public DbSet<State> States { get; set; }
 
+    public DbSet<TemporalSale> TemporalSales { get; set; }
+
 
 
 

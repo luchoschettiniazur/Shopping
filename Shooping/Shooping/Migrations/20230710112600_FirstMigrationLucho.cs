@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Shooping.Migrations
 {
     /// <inheritdoc />
-    public partial class DBUntilProducts : Migration
+    public partial class FirstMigrationLucho : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -297,6 +297,33 @@ namespace Shooping.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "TemporalSales",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    Quantity = table.Column<float>(type: "real", nullable: false),
+                    Remarks = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_TemporalSales", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_TemporalSales_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_TemporalSales_Products_ProductId",
+                        column: x => x.ProductId,
+                        principalTable: "Products",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -390,6 +417,16 @@ namespace Shooping.Migrations
                 table: "States",
                 columns: new[] { "Name", "CountryId" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TemporalSales_ProductId",
+                table: "TemporalSales",
+                column: "ProductId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_TemporalSales_UserId",
+                table: "TemporalSales",
+                column: "UserId");
         }
 
         /// <inheritdoc />
@@ -417,13 +454,16 @@ namespace Shooping.Migrations
                 name: "ProductImages");
 
             migrationBuilder.DropTable(
+                name: "TemporalSales");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
-                name: "AspNetUsers");
+                name: "Categories");
 
             migrationBuilder.DropTable(
-                name: "Categories");
+                name: "AspNetUsers");
 
             migrationBuilder.DropTable(
                 name: "Products");

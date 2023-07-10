@@ -1,5 +1,6 @@
 ﻿
-@model IEnumerable<Shooping.Models.ProductsHomeViewModel>
+@*@model IEnumerable<Shooping.Models.ProductsHomeViewModel>*@
+@model Shooping.Models.HomeViewModel
 
 @{
     ViewData["Title"] = "Index";
@@ -17,7 +18,14 @@
 .foot a:after
 *@
 
-@foreach (var item in Model)
+
+@if (Model.Quantity > 0)
+{
+    <a asp-action="ShowCart" class="btn btn-outline-primary">Ver Carro de Compras (@Model.Quantity)</a>
+}
+
+
+@foreach (var item in Model.Products!)
 {
     <div class="row">
         @if (item.Product1 != null)

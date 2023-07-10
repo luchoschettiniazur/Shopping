@@ -2,6 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Shooping.Data;
 using Shooping.Data.Entities;
+using Shooping.Data.Identity;
+using Shooping.Helpers.Auth;
 using Shooping.Models;
 using System.Diagnostics;
 
@@ -10,12 +12,14 @@ public class HomeController : Controller
 {
     private readonly ILogger<HomeController> _logger;
     private readonly DataContext _context;
+    private readonly IUserHelper _userHelper;
 
     public HomeController(ILogger<HomeController> logger,
-        DataContext context)
+        DataContext context, IUserHelper userHelper)
     {
         _logger = logger;
         _context = context;
+        _userHelper = userHelper;
     }
 
 
@@ -54,8 +58,63 @@ public class HomeController : Controller
             i++;
         }
 
-        return View(listProductsHome);
+
+        HomeViewModel model = new() { Products = listProductsHome };
+        User user = await _userHelper.GetUserAsync(User.Identity!.Name!);
+        if (user != null)
+        {
+            //asi podemos comprobar si el usuario a agregado algo
+            //al carrito de compras temporal.
+            model.Quantity = await _context.TemporalSales
+                .Where(ts => ts.User!.Id == user.Id)
+                .SumAsync(ts => ts.Quantity);
+        }
+
+        return View(model);
+
     }
+
+
+
+
+
+    public async Task<IActionResult> Add(int? id)
+    {
+        if (id == null)
+        {
+            return NotFound();
+        }
+
+        if (!User.Identity!.IsAuthenticated)
+        {
+            return RedirectToAction("Login", "Account");
+        }
+
+        Product? product = await _context.Products.FindAsync(id);
+        if (product == null)
+        {
+            return NotFound();
+        }
+
+        User user = await _userHelper.GetUserAsync(User.Identity.Name!);
+        if (user == null)
+        {
+            return NotFound();
+        }
+
+        TemporalSale temporalSale = new()
+        {
+            Product = product,
+            Quantity = 1,
+            User = user
+        };
+
+        _context.TemporalSales.Add(temporalSale);
+        await _context.SaveChangesAsync();
+        return RedirectToAction(nameof(Index));
+    }
+
+
 
 
 
@@ -78,5 +137,15 @@ public class HomeController : Controller
 	{
 		return View();
 	}
+
+
+
+
+
+
+
+
+
+
 
 }
