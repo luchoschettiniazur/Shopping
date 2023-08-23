@@ -2,7 +2,7 @@
 
 namespace Shooping.Models;
 
-public class ProductsHomeViewModel
+public class xxxxxxxxxProductsHomeViewModel
 {
 
     public Product? Product1 { get; set; }

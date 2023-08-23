@@ -23,55 +23,25 @@ public class HomeController : Controller
     }
 
 
+
     public async Task<IActionResult> Index()
     {
-        List<Product>? products = await _context.Products
+        List<Product> products = await _context.Products
             .Include(p => p.ProductImages)
             .Include(p => p.ProductCategories)
             .OrderBy(p => p.Description)
             .ToListAsync();
 
-        List<ProductsHomeViewModel> listProductsHome = new() { new ProductsHomeViewModel() };
-        int i = 1;
-
-        foreach (Product? product in products)
-        {
-            if (i == 1)
-            {
-                listProductsHome.LastOrDefault()!.Product1 = product;
-            }
-            if (i == 2)
-            {
-                listProductsHome.LastOrDefault()!.Product2 = product;
-            }
-            if (i == 3)
-            {
-                listProductsHome.LastOrDefault()!.Product3 = product;
-            }
-            if (i == 4)
-            {
-                listProductsHome.LastOrDefault()!.Product4 = product;
-
-                listProductsHome.Add(new ProductsHomeViewModel());
-                i = 0;
-            }
-            i++;
-        }
-
-
-        HomeViewModel model = new() { Products = listProductsHome };
+        HomeViewModel model = new() { Products = products };
         User user = await _userHelper.GetUserAsync(User.Identity!.Name!);
         if (user != null)
         {
-            //asi podemos comprobar si el usuario a agregado algo
-            //al carrito de compras temporal.
             model.Quantity = await _context.TemporalSales
-                .Where(ts => ts.User!.Id == user.Id)
+                .Where(ts => ts.User.Id == user.Id)
                 .SumAsync(ts => ts.Quantity);
         }
 
         return View(model);
-
     }
 
 
